@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musfira</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Blurred Background */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('background.png');
+            background-size: cover;
+            background-position: top;
+            background-repeat: no-repeat;
+            filter: blur(8px);
+            z-index: -1;
+            cursor: grab;
+        }
+
+        .background.dragging {
+            cursor: grabbing;
+        }
+
+        /* Dark overlay for better contrast */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            z-index: -1;
+        }
+
+        /* Centered Fixed Rectangle Container */
+        .container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            padding: 0;
+            overflow: hidden;
+            z-index: 100;
+            max-width: 90vw;
+            max-height: 90vh;
+        }
+
+        /* Image inside container */
+        .container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* Responsive sizing */
+        @media (min-width: 1024px) {
+            .container {
+                width: 600px;
+                height: 420px;
+            }
+        }
+
+        @media (max-width: 1023px) and (min-width: 768px) {
+            .container {
+                width: 80vw;
+                height: 55vh;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .container {
+                width: 95vw;
+                height: 55vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Blurred Background -->
+    <div class="background"></div>
+    <div class="overlay"></div>
+
+    <!-- Centered Fixed Container with Image -->
+    <div class="container">
+        <img src="foreground.png" alt="Centered Content">
+    </div>
+
+    <script>
+        const background = document.querySelector('.background');
+        let isMouseDown = false;
+        let startY = 0;
+        let currentYOffset = 0;
+
+        background.addEventListener('mousedown', (e) => {
+            isMouseDown = true;
+            startY = e.clientY;
+            background.classList.add('dragging');
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isMouseDown) return;
+
+            const deltaY = e.clientY - startY;
+            currentYOffset += deltaY / 100;
+
+            // Clamp the offset to reasonable values
+            currentYOffset = Math.max(-100, Math.min(100, currentYOffset));
+
+            background.style.backgroundPosition = `center ${-currentYOffset}%`;
+            startY = e.clientY;
+        });
+
+        document.addEventListener('mouseup', () => {
+            isMouseDown = false;
+            background.classList.remove('dragging');
+        });
+
+        // Touch support for mobile
+        background.addEventListener('touchstart', (e) => {
+            isMouseDown = true;
+            startY = e.touches[0].clientY;
+            background.classList.add('dragging');
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isMouseDown) return;
+
+            const deltaY = e.touches[0].clientY - startY;
+            currentYOffset += deltaY / 100;
+            currentYOffset = Math.max(-100, Math.min(100, currentYOffset));
+
+            background.style.backgroundPosition = `center ${-currentYOffset}%`;
+            startY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchend', () => {
+            isMouseDown = false;
+            background.classList.remove('dragging');
+        });
+    </script>
+</body>
+</html>
